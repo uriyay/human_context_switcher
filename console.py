@@ -33,6 +33,7 @@ class Console(object):
             'exit' : self.exit,
             'shell' : self.run_shell,
             'py' : self.run_python,
+            'remind' : self.remind,
         }
 
     def exit(self, line):
@@ -90,6 +91,21 @@ class Console(object):
 
     def get_data(self, line):
         print(repr(self.current_thread.get_data(line)))
+
+    def remind(self, line):
+        #stop condition
+        if line == '':
+            return
+
+        new_phrase = ''
+        for name,thd in self.threads.items():
+            print('In thread {}'.format(name))
+            new_phrase += thd.remind(line)
+
+        if new_phrase == '':
+            new_phrase = input('Next phrase?: ')
+        self.remind(new_phrase)
+
 
     def parse(self, line):
         if '`' in line:

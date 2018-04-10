@@ -46,3 +46,19 @@ class Thread(object):
 
     def display_memory(self):
         return self._display_list(['"{0}" : "{1}"'.format(key, value) for key,value in self.memory.items()])
+
+    def _search(self, phrase, container):
+        results = []
+        for entry in container:
+            #TODO: more soficiticated method
+            if phrase.lower() in entry.lower():
+                results.append(entry)
+        return results
+
+    def remind(self, phrase):
+        print('in stack:')
+        print(self._display_list(self._search(phrase, self.stack[::-1])))
+        print('in memory:')
+        print(self._display_list(self._search(phrase, self.memory.values())))
+        #TODO: aggregate new tags from the results
+        return ''
