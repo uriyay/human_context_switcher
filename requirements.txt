@@ -1,0 +1,2 @@
+namesgenerator>=0.3
+ipython>=4.0
