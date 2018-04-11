@@ -66,7 +66,7 @@ class Console(object):
         param phrase: a phrase to search in google
         '''
         for index,result in enumerate(google.search(line)):
-            print('[result#{0}]\n{1}'.format(index, result.description))
+            print('{0}[result #{1}]{2}\n{3}\n{4}\n'.format(colored.fg('yellow'), index, RESET, result.description, result.link))
 
     def exit(self, line):
         '''Exits the console'''
