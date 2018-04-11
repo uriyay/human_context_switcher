@@ -1,2 +1,5 @@
 namesgenerator>=0.3
 ipython>=4.0
+unidecode
+setuptools>=39
+Google-Search-API

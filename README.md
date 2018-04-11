@@ -20,3 +20,21 @@ Future thoughts
 I want to combine it with my tags-db project, an automated tagging
 So when the user will type: "remind <text>"
 He will get a related memory, then a raw_input('phrase: ') to catch a phrase
+
+Example session
+----------------
+Here is an example for how this is work:
+```
+> push Idea1
+> push Idea2
+> push Idea3
+> info stack
+-------
+|Idea3|
+|Idea2|
+|Idea1|
+-------
+> pop
+> info stack
+
+```
