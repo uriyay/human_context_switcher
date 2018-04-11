@@ -36,7 +36,70 @@ Here is an example for how this is work:
 -------
 ```
 
-run "help" in order to see the whole list of commands.
+run "help" in order to see the whole list of commands:
+```
+main> help
+Available commands are:
+help: Shows help
+new:
+        Creates a new thread.
+        param name: the name of the thread. you can pass nothing
+            and a special name will be generated for you
+
+switch:
+        Switches to other thread.
+        param name: the thread name
+
+delete:
+        Deletes thread.
+        param name: the thread name
+
+list:
+        Get a list of all threads, also will mark the current thread by "[+]"
+
+push:
+        Pushes data to the stack
+
+pop:
+        Pops the last element that was inserted to the stack
+
+set:
+        Sets a key in memory to the given value.
+        Syntax: "<key>" : "<value>"
+
+get:
+        Gets a value that was stored in a given key.
+        param key: the key that was related to the data
+
+info:
+        Get info about the thread.
+        available subcommands:
+            info stack - displays the thread stack
+            info memory - displays the thread memory
+
+exit: Exits the console
+shell:
+        Will run the rest of the line as shell command
+
+py:
+        Will run IPython shell
+
+remind:
+        Search a phrase.
+        param phrase: a phrase to search
+
+#:
+        A comment, will not be executed
+
+google:
+        Search a phrase in google.
+        param phrase: a phrase to search in google
+
+Also you can type a text wrapped by "`" in order to run to run it with python.
+for example: "push `1+1`" will push 2).
+In a similar way you can wrap a text by "$" in order to run it with the command line.
+main>
+```
 
 Future thoughts
 ----------------
