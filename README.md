@@ -15,12 +15,6 @@ The memory
 ------------
 A key-value memory
 
-Future thoughts
-----------------
-I want to combine it with my tags-db project, an automated tagging
-So when the user will type: "remind <text>"
-He will get a related memory, then a raw_input('phrase: ') to catch a phrase
-
 Example session
 ----------------
 Here is an example for how this is work:
@@ -36,5 +30,30 @@ Here is an example for how this is work:
 -------
 > pop
 > info stack
+-------
+|Idea2|
+|Idea1|
+-------
+```
 
+run "help" in order to see the whole list of commands.
+
+Future thoughts
+----------------
+I want to combine it with my tags-db project, an automated tagging
+So when the user will type: "remind <text>"
+He will get a related memory, then a raw_input('phrase: ') to catch a phrase
+
+Issues
+-------
+1. There was a weird problem with pip.
+When installing a package it says:
+```
+File "/home/user/anaconda3/lib/python3.6/site-packages/pip/_vendor/pkg_resources/__init__.py", line 2121, in _rebuild_mod_path
+    orig_path.sort(key=position_in_sys_path)
+AttributeError: '_NamespacePath' object has no attribute 'sort'
+```
+I solved it by edit the line to:
+```
+orig_path._path.sort(key=position_in_sys_path)
 ```

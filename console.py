@@ -5,12 +5,15 @@ import os
 import readline
 import subprocess
 from google import google
+import colored
 
 import thread
 import config
 
 if sys.version_info.major == 2:
     raise Exception('Python 2 is not supported')
+
+RESET = colored.attr('reset')
 
 readline.parse_and_bind('tab: complete')
 
@@ -43,7 +46,9 @@ class Console(object):
     def help(self, line):
         '''Shows help'''
         print('Available commands are:\n{}'.format(
-            '\n'.join('{0}: {1}'.format(func_name, func.__doc__) for func_name,func in self.commands.items())
+            '\n'.join('{0}{1}{2}: {3}'.format(
+                colored.fg('yellow'), func_name, RESET, func.__doc__)
+                for func_name,func in self.commands.items())
             ))
         print('\n'.join(['Also you can type a text wrapped by "`" in order to run to run it with python.',
                 'for example: "push `1+1`" will push 2).',
@@ -204,7 +209,7 @@ class Console(object):
     def run(self):
         self.should_stop = False
         while not self.should_stop:
-            line = input('{0}> '.format(self.current_thread.thread_name))
+            line = input('{0}{1}{2}> '.format(colored.fg('red'), self.current_thread.thread_name, RESET))
             if len(line) > 0:
                 self.parse(line)
 
