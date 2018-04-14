@@ -21,14 +21,14 @@ class Console(object):
     def __init__(self, is_load_mode=False):
         if not is_load_mode:
             self.main_thread = thread.Thread(name='main')
-            self.threads = {'' : self.main_thread}
+            self.threads = {'main' : self.main_thread}
             self.current_thread = self.main_thread
         self.should_stop = False
         self.commands = {
             'help' : self.help,
             'new' : self.new_thread,
             'switch' : self.switch,
-            'delete' : self.delete_thread,
+            'delete' : self.delete_command,
             'list' : self.list_threads,
             'push' : self.push,
             'pop' : self.pop,
@@ -63,10 +63,22 @@ class Console(object):
     def google(self, line):
         '''
         Search a phrase in google.
+        syntax: google [push|set] phrase
+        param push: push the first result to the stack
+        param set: set the phrase in memory to the first result
         param phrase: a phrase to search in google
         '''
-        for index,result in enumerate(google.search(line)):
-            print('{0}[result #{1}]{2}\n{3}\n{4}\n'.format(colored.fg('yellow'), index, RESET, result.description, result.link))
+        param,rest_line = line.partition(' ')[0::2]
+        if param in ['push', 'set']:
+            line = rest_line
+        results = [(x.description, x.link) for x in google.search(line)]
+        if param == 'push':
+            self.push('{0}\n{1}'.format(results[0][0], results[0][1]))
+        elif param == 'set':
+            self.current_thread.set_data(line, '{0}\n{1}'.format(results[0][0], results[0][1]))
+        else:
+            for index,result in enumerate(results):
+                print('{0}[result #{1}]{2}\n{3}\n{4}\n'.format(colored.fg('yellow'), index, RESET, result[0], result[1]))
 
     def exit(self, line):
         '''Exits the console'''
@@ -90,14 +102,30 @@ class Console(object):
         Switches to other thread.
         param name: the thread name
         '''
+        if len(line) == 0:
+            line = 'main'
         self.current_thread = self.threads[line]
 
-    def delete_thread(self, line):
+    def delete_command(self, line):
         '''
-        Deletes thread.
-        param name: the thread name
+        Delete command.
+        syntax: delete thread|memory
+        param name: the thread name or key name
         '''
-        del self.threads[line]
+        param, line = line.partition(' ')
+        if param == 'thread':
+            if len(line) == 0:
+                line = self.current_thread.thread_name
+            if input('Are you sure you want to delete {0} thread? (Y/n): '.format(line)).lower() == 'y':
+                del self.threads[line]
+                #switch to main thread
+                self.switch('')
+        elif param == 'memory':
+            if len(line) == 0:
+                print('Error: no key name given to delete')
+            else:
+                if input('Are you sure you want to delete {0} key from memory? (Y/n): '.format(line)).lower() == 'y':
+                    del self.current_thread.memory[line]
 
     def list_threads(self, line):
         '''

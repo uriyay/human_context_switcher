@@ -1,4 +1,5 @@
 namesgenerator>=0.3
+terminaltables
 ipython>=4.0
 unidecode
 setuptools>=39

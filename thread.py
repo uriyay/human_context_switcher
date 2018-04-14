@@ -1,5 +1,7 @@
 import namesgenerator
 import json
+import string
+from terminaltables import AsciiTable, SingleTable
 
 class Thread(object):
     def __init__(self, name=None, thread_id=None, stack=None, memory=None):
@@ -35,11 +37,10 @@ class Thread(object):
         if len(data_list) == 0:
             return 'Nothing in here..'
 
-        max_data_length = max(len(x) for x in data_list)
-        separator = '-' * (max_data_length + 2)
-        result = '{0}\n{1}\n{0}'.format(separator,
-                '\n'.join(('|{:^%d}|' % (max_data_length)).format(x) for x in data_list))
-        return result
+        table = SingleTable([[x] for x in data_list])
+        table.inner_row_border = True
+        table.justify_columns[0] = 'center'
+        return table.table
 
     def display_stack(self):
         return self._display_list(self.stack[::-1])
