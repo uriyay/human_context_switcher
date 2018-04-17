@@ -72,10 +72,13 @@ class Console(object):
         if param in ['push', 'set']:
             line = rest_line
         results = [(x.description, x.link) for x in google.search(line)]
+        first_result = '{0}\n{1}'.format(results[0][0], results[0][1])
         if param == 'push':
-            self.push('{0}\n{1}'.format(results[0][0], results[0][1]))
+            print('Pushing first_result:\n' + first_result)
+            self.push(first_result)
         elif param == 'set':
-            self.current_thread.set_data(line, '{0}\n{1}'.format(results[0][0], results[0][1]))
+            print('memory["{0}"] = "{1}"'.format(line, first_result))
+            self.current_thread.set_data(line, first_result)
         else:
             for index,result in enumerate(results):
                 print('{0}[result #{1}]{2}\n{3}\n{4}\n'.format(colored.fg('yellow'), index, RESET, result[0], result[1]))
