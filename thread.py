@@ -2,6 +2,9 @@ import namesgenerator
 import json
 import string
 from terminaltables import AsciiTable, SingleTable
+import textwrap
+
+LINE_WIDTH = 80
 
 class Thread(object):
     def __init__(self, name=None, thread_id=None, stack=None, memory=None):
@@ -37,9 +40,8 @@ class Thread(object):
         if len(data_list) == 0:
             return 'Nothing in here..'
 
-        table = SingleTable([[x] for x in data_list])
+        table = SingleTable([['\n'.join(textwrap.wrap(x, LINE_WIDTH))] for x in data_list])
         table.inner_row_border = True
-        table.justify_columns[0] = 'center'
         return table.table
 
     def display_stack(self):

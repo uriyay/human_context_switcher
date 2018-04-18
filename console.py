@@ -6,6 +6,7 @@ import readline
 import subprocess
 from google import google
 import colored
+import urllib
 
 import thread
 import config
@@ -14,6 +15,8 @@ if sys.version_info.major == 2:
     raise Exception('Python 2 is not supported')
 
 RESET = colored.attr('reset')
+WIKI_URL = 'http://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles={0}'
+WIKI_SEARCH_URL = 'http://en.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch={0}'
 
 readline.parse_and_bind('tab: complete')
 
@@ -41,6 +44,7 @@ class Console(object):
             'remind' : self.remind,
             '#' : self.comment,
             'google' : self.google,
+            'wiki' : self.wikipedia,
         }
 
     def help(self, line):
@@ -83,6 +87,33 @@ class Console(object):
             for index,result in enumerate(results):
                 print('{0}[result #{1}]{2}\n{3}\n{4}\n'.format(colored.fg('yellow'), index, RESET, result[0], result[1]))
 
+    def wikipedia(self, line):
+        '''
+        Gets wikipedia info about something
+        Syntax: wiki [push|set] phrase
+        '''
+        param,rest_line = line.partition(' ')[0::2]
+        if param in ['push', 'set']:
+            line = rest_line
+        #first find a match term for this phrase in wikipedia
+        search_results = json.loads(urllib.request.urlopen(WIKI_SEARCH_URL.format(urllib.request.quote(line))).read())
+        search_results = [x['title'] for x in search_results['query']['search']]
+        if len(search_results) == 0:
+            print('Nothing found..')
+        else:
+            print('Found these possible values:\n' + '\n'.join(
+                '{0}) {1}'.format(i, val) for i,val in enumerate(search_results)))
+            chosen = int(input('Choose a value ({0}-{1}): '.format(0, len(search_results))))
+            title = search_results[chosen]
+            wiki_value = json.loads(urllib.request.urlopen(WIKI_URL.format(urllib.request.quote(title))).read())
+            wiki_value_pages = wiki_value['query']['pages']
+            intro = wiki_value_pages[list(wiki_value_pages.keys())[0]]['extract']
+            print(intro)
+            if param == 'push':
+                self.push(intro)
+            elif param == 'set':
+                self.current_thread.set_data(line, intro)
+
     def exit(self, line):
         '''Exits the console'''
         self.should_stop = True
@@ -115,20 +146,26 @@ class Console(object):
         syntax: delete thread|memory
         param name: the thread name or key name
         '''
-        param, line = line.partition(' ')
+        param, line = line.partition(' ')[0::2]
         if param == 'thread':
             if len(line) == 0:
                 line = self.current_thread.thread_name
-            if input('Are you sure you want to delete {0} thread? (Y/n): '.format(line)).lower() == 'y':
-                del self.threads[line]
-                #switch to main thread
-                self.switch('')
+            if input('Are you sure you want to delete "{0}" thread? (Y/n): '.format(line)).lower() == 'y':
+                if line not in self.threads:
+                    print('thread "{0}" not found'.format(line))
+                else:
+                    del self.threads[line]
+                    #switch to main thread
+                    self.switch('')
         elif param == 'memory':
             if len(line) == 0:
                 print('Error: no key name given to delete')
             else:
-                if input('Are you sure you want to delete {0} key from memory? (Y/n): '.format(line)).lower() == 'y':
-                    del self.current_thread.memory[line]
+                if input('Are you sure you want to delete "{0}" key from memory? (Y/n): '.format(line)).lower() == 'y':
+                    if line not in self.current_thread.memory:
+                        print('memory key "{0}" not found'.format(line))
+                    else:
+                        del self.current_thread.memory[line]
 
     def list_threads(self, line):
         '''
