@@ -121,5 +121,7 @@ I solved it by edit the line to:
 orig_path._path.sort(key=position_in_sys_path)
 ```
 2. If you can't see other languages than english in linux, run this command before running the main.py:
+```
 export LANG=en_US.UTF-8
+```
 and open main.py in new bash
