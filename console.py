@@ -10,6 +10,8 @@ import urllib
 
 import thread
 import config
+import msdn
+import man
 
 if sys.version_info.major == 2:
     raise Exception('Python 2 is not supported')
@@ -45,6 +47,8 @@ class Console(object):
             '#' : self.comment,
             'google' : self.google,
             'wiki' : self.wikipedia,
+            'msdn' : self.get_msdn,
+            'man': self.get_man_page,
         }
 
     def help(self, line):
@@ -113,6 +117,25 @@ class Console(object):
                 self.push(intro)
             elif param == 'set':
                 self.current_thread.set_data(line, intro)
+
+    def get_msdn(self, line):
+        '''
+        Gets msdn about function
+        param function_name: the function to get msdn about
+        '''
+        m = msdn.MSDN(line)
+        print('Syntax:\n-----------\n{0}\nParameters:\n------------\n{1}\nReturn value:\n------------------\n{2}'.format(m.syntax, m.parameters, m.return_value))
+
+    def get_man_page(self, line):
+        '''
+        Gets man page
+        syntax: man <topic> [section]
+        '''
+        section = None
+        topic = line
+        if ' ' in line:
+            topic, section = line.split(' ')
+        print(man.get_man_page(topic, section))
 
     def exit(self, line):
         '''Exits the console'''
