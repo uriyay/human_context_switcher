@@ -6,4 +6,5 @@ setup(name='human-context-switcher',
       author='uriyay',
       url='https://github.com/uriyay/human_context_switcher',
       packages=find_packages(),
+      scripts=['scripts/human_context_switcher']
       )

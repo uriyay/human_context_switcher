@@ -93,7 +93,22 @@ remind:
 
 google:
         Search a phrase in google.
+        syntax: google [push|set] phrase
+        param push: push the first result to the stack
+        param set: set the phrase in memory to the first result
         param phrase: a phrase to search in google
+
+wiki:
+        Gets wikipedia info about something
+        Syntax: wiki [push|set] phrase
+
+msdn:
+        Gets msdn about function
+        param function_name: the function to get msdn about
+
+man:
+        Gets man page
+        syntax: man <topic> [section]
 
 Also you can type a text wrapped by "`" in order to run to run it with python.
 for example: "push `1+1`" will push 2).
