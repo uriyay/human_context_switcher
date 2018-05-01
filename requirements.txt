@@ -3,4 +3,5 @@ terminaltables
 ipython>=4.0
 unidecode
 setuptools>=39
-Google-Search-API
+[-e] git+https://github.com/abenassi/Google-Search-API.git#egg=Google-Search-API
+

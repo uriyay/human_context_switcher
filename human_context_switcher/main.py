@@ -1,8 +1,8 @@
-#!/usr/bin/env python
-import console
-import config
+#!/usr/bin/env python3
+from . import console
+from . import config
 
-if __name__ == '__main__':
+def main():
     try:
         c = console.Console.load(config.Config['db_path'])
         c.run()
@@ -10,3 +10,6 @@ if __name__ == '__main__':
         pass
     finally:
         c.dump()
+
+if __name__ == '__main__':
+    main()

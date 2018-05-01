@@ -8,10 +8,10 @@ from google import google
 import colored
 import urllib
 
-import thread
-import config
-import msdn
-import man
+from . import thread
+from . import config
+from . import msdn
+from . import man
 
 if sys.version_info.major == 2:
     raise Exception('Python 2 is not supported')
@@ -124,7 +124,7 @@ class Console(object):
         param function_name: the function to get msdn about
         '''
         m = msdn.MSDN(line)
-        print('Syntax:\n-----------\n{0}\nParameters:\n------------\n{1}\nReturn value:\n------------------\n{2}'.format(m.syntax, m.parameters, m.return_value))
+        print('Syntax:\n{0}\nParameters:\n{1}\nReturn value:\n{2}'.format(m.syntax, m.parameters, m.return_value))
 
     def get_man_page(self, line):
         '''
