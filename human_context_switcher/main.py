@@ -10,7 +10,7 @@ class App(object):
     def __init__(self):
         self.loop = asyncio.get_event_loop()
         self.event_loop = event_loop.EventLoop(self.loop)
-        self.console = console.Console.load(config.Config['db_path'])
+        self.console = console.Console.load(config.Config['db_path'], event_loop=self.event_loop)
 
     @asyncio.coroutine
     def run_console(self):
@@ -24,6 +24,7 @@ class App(object):
 
     def main(self):
         try:
+            #TODO: turns out that tasks can run in parallel onlyif they are running in different Threads..
             self.loop.run_until_complete(
                 asyncio.gather(self.event_loop.main_loop(),
                     self.run_console()))

@@ -53,6 +53,7 @@ class Console(object):
             'msdn' : self.get_msdn,
             'man': self.get_man_page,
             'wikidata' : self.wikidata,
+            'send' : self.send,
         }
 
     def help(self, line):
@@ -65,6 +66,17 @@ class Console(object):
         print('\n'.join(['Also you can type a text wrapped by "`" in order to run to run it with python.',
                 'for example: "push `1+1`" will push 2).',
                 'In a similar way you can wrap a text by "$" in order to run it with the command line.']))
+
+    def send(self, line):
+        '''
+        Sends a message to other thread
+        Syntax: send <thread_name> <data>
+        '''
+        #current thread sends message to thread_name thread
+        thread_name, sep, data = line.partition(' ')
+        #TODO: handle not exists thread
+        target_thread = self.threads[thread_name]
+        self.current_thread.send(target_thread.id, data)
 
     def comment(self, line):
         '''
@@ -335,14 +347,14 @@ class Console(object):
                 open(os.path.expanduser(config.Config['db_path']), 'w'))
 
     @classmethod
-    def load(cls, path):
+    def load(cls, path, event_loop=None):
         path = os.path.expanduser(path)
         if os.path.exists(path):
             main_thread_id, threads_dumps, current_thread_id = json.load(open(path, 'r'))
-            c = cls(is_load_mode=True)
+            c = cls(event_loop=event_loop, is_load_mode=True)
             c.threads = {}
             for data in threads_dumps:
-                t = thread.Thread.load(data)
+                t = thread.Thread.load(data, event_loop=event_loop)
                 c.threads[t.thread_name] = t
             c.main_thread = next(x for x in c.threads.values() if x.id == main_thread_id)
             c.current_thread = next(x for x in c.threads.values() if x.id == current_thread_id)
