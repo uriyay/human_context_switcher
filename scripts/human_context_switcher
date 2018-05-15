@@ -2,4 +2,4 @@
 # -*- coding: utf-8 -*-
 from human_context_switcher import main
 
-main.main()
+main.App().main()

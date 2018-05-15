@@ -7,13 +7,14 @@ import textwrap
 LINE_WIDTH = 80
 
 class Thread(object):
-    def __init__(self, name=None, thread_id=None, stack=None, memory=None):
+    def __init__(self, event_loop=None, name=None, thread_id=None, stack=None, memory=None):
         self.id = id(self) if thread_id is None else thread_id
         self.thread_name = namesgenerator.get_random_name() if name is None else name
         self.stack = [] if stack is None else stack
         self.memory = {} if memory is None else memory
-        #TODO: an async event loop with timed events and callbacks for crazy things
-        #self.event_loop = 
+
+        #main_loop
+        self.event_loop = event_loop
 
     def dump(self):
         return json.dumps([self.id, self.thread_name, self.stack, self.memory])

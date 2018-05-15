@@ -7,6 +7,7 @@ import subprocess
 from google import google
 import colored
 import urllib
+import traceback
 
 from . import thread
 from . import config
@@ -24,12 +25,13 @@ WIKIDATA_SEARCH_URL = 'https://www.wikidata.org/w/api.php?action=wbsearchentitie
 readline.parse_and_bind('tab: complete')
 
 class Console(object):
-    def __init__(self, is_load_mode=False):
+    def __init__(self, event_loop=None, is_load_mode=False):
         if not is_load_mode:
             self.main_thread = thread.Thread(name='main')
             self.threads = {'main' : self.main_thread}
             self.current_thread = self.main_thread
         self.should_stop = False
+        self.event_loop = event_loop
         self.commands = {
             'help' : self.help,
             'new' : self.new_thread,
@@ -110,7 +112,11 @@ class Console(object):
         else:
             print('Found these possible values:\n' + '\n'.join(
                 '{0}) {1}'.format(i, val) for i,val in enumerate(search_results)))
-            chosen = int(input('Choose a value ({0}-{1}): '.format(0, len(search_results))))
+            chosen = input('Choose a value ({0}-{1}): '.format(0, len(search_results)))
+            if not chosen:
+                return
+
+            chosen = int(chosen)
             title = search_results[chosen]
             wiki_value = json.loads(urllib.request.urlopen(WIKI_URL.format(urllib.request.quote(title))).read())
             wiki_value_pages = wiki_value['query']['pages']
@@ -164,7 +170,7 @@ class Console(object):
         name = line
         if len(line) == 0:
             name = None
-        t = thread.Thread(name)
+        t = thread.Thread(event_loop=self.event_loop, name=name)
         self.threads[t.thread_name] = t
         self.current_thread = t
 
@@ -316,7 +322,13 @@ class Console(object):
         while not self.should_stop:
             line = input('{0}{1}{2}> '.format(colored.fg('red'), self.current_thread.thread_name, RESET))
             if len(line) > 0:
-                self.parse(line)
+                try:
+                    self.parse(line)
+                except:
+                    err = sys.exc_info()
+                    print('{0}Error: {1}'.format(colored.fg('red'), err[1]))
+                    traceback.print_tb(err[2])
+                    print('{0}Continuing..{1}'.format(colored.fg('green'), RESET))
 
     def dump(self):
         json.dump([self.main_thread.id, [x.dump() for x in self.threads.values()], self.current_thread.id],
