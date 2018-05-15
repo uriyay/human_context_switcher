@@ -140,3 +140,24 @@ orig_path._path.sort(key=position_in_sys_path)
 export LANG=en_US.UTF-8
 ```
 and open main.py in new bash
+3. In order to debug it, you can't just run:
+```
+python3 ./main.py
+```
+This will lead to an error like:
+```
+ImportError: cannot import name 'console'
+```
+So, in order to run it you need to run the script:
+```
+PYTHONPATH=$PWD:$PYTHONPATH ./scripts/human_context_switcher
+```
+If you want to run it from python console, and you already installed the package,
+you can preempt the folder by:
+```
+PYTHONPATH=$PWD:$PYTHONPATH ipython3
+```
+Or:
+```
+sys.path.insert(0, os.getcwd())
+```

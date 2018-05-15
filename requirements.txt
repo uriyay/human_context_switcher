@@ -1,7 +1,7 @@
+colored
 namesgenerator>=0.3
 terminaltables
 ipython>=4.0
 unidecode
 setuptools>=39
 -e git+https://github.com/abenassi/Google-Search-API.git#egg=Google-Search-API
-

@@ -19,6 +19,7 @@ if sys.version_info.major == 2:
 RESET = colored.attr('reset')
 WIKI_URL = 'http://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles={0}'
 WIKI_SEARCH_URL = 'http://en.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch={0}'
+WIKIDATA_SEARCH_URL = 'https://www.wikidata.org/w/api.php?action=wbsearchentities&search={0}&format=json&language=en&type=item&continue=0'
 
 readline.parse_and_bind('tab: complete')
 
@@ -49,6 +50,7 @@ class Console(object):
             'wiki' : self.wikipedia,
             'msdn' : self.get_msdn,
             'man': self.get_man_page,
+            'wikidata' : self.wikidata,
         }
 
     def help(self, line):
@@ -79,8 +81,8 @@ class Console(object):
         param,rest_line = line.partition(' ')[0::2]
         if param in ['push', 'set']:
             line = rest_line
-        results = [(x.description, x.link) for x in google.search(line)]
-        first_result = '{0}\n{1}'.format(results[0][0], results[0][1])
+        results = google.search(line)
+        first_result = '{0}\n{1}\n{2}'.format(results[0].name, results[0].description, results[0].link)
         if param == 'push':
             print('Pushing first_result:\n' + first_result)
             self.push(first_result)
@@ -89,7 +91,8 @@ class Console(object):
             self.current_thread.set_data(line, first_result)
         else:
             for index,result in enumerate(results):
-                print('{0}[result #{1}]{2}\n{3}\n{4}\n'.format(colored.fg('yellow'), index, RESET, result[0], result[1]))
+                print('{0}{1}) {2}{3}\n{4}\n{5}\n'.format(
+                    colored.fg('yellow'), index, result.name, RESET, result.description, result.link))
 
     def wikipedia(self, line):
         '''
@@ -136,6 +139,17 @@ class Console(object):
         if ' ' in line:
             topic, section = line.split(' ')
         print(man.get_man_page(topic, section))
+
+    def wikidata(self, line):
+        '''
+        Gets wikidata page.
+        Syntax: wikidata <title>
+        '''
+        url = WIKIDATA_SEARCH_URL.format(line)
+        data = urllib.request.urlopen(url).read()
+        json_data = json.loads(data)
+        search_results = '\n'.join('{0}) {1} - {2}'.format(index, x.get('label', ''), x.get('description', '')) for index,x in enumerate(json_data['search']))
+        print(search_results)
 
     def exit(self, line):
         '''Exits the console'''
