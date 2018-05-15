@@ -110,6 +110,10 @@ man:
         Gets man page
         syntax: man <topic> [section]
 
+wikidata:
+        Gets wikidata page.
+        Syntax: wikidata <title>
+
 Also you can type a text wrapped by "`" in order to run to run it with python.
 for example: "push `1+1`" will push 2).
 In a similar way you can wrap a text by "$" in order to run it with the command line.
