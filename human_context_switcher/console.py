@@ -54,6 +54,7 @@ class Console(object):
             'man': self.get_man_page,
             'wikidata' : self.wikidata,
             'send' : self.send,
+            'alarm' : self.alarm,
         }
 
     def help(self, line):
@@ -66,6 +67,15 @@ class Console(object):
         print('\n'.join(['Also you can type a text wrapped by "`" in order to run to run it with python.',
                 'for example: "push `1+1`" will push 2).',
                 'In a similar way you can wrap a text by "$" in order to run it with the command line.']))
+
+    def alarm(self, line):
+        '''
+        Sets alarm in current thread
+        Syntax: alarm <miliseconds_offset> data
+        '''
+        miliseconds_offset, sep, data = line.partition(' ')
+        miliseconds_offset = int(miliseconds_offset)
+        self.current_thread.set_alarm(data, miliseconds_offset)
 
     def send(self, line):
         '''

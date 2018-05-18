@@ -26,6 +26,7 @@ class Event(object):
 class EventID:
     SHUTDOWN = 0
     MESSAGE = 1
+    ALARM = 2
 
 class ShutdownEvent(Event):
     def __init__(self):
@@ -39,6 +40,15 @@ class MessageEvent(Event):
                 target_thread_id=target_thread_id,
                 data=data)
 
+class AlarmEvent(Event):
+    def __init__(self, source_thread_name, source_thread_id, target_thread_id, data, start_time):
+        super(AlarmEvent, self).__init__(EventID.ALARM, 'alarm',
+                source_thread_name=source_thread_name,
+                source_thread_id=source_thread_id,
+                target_thread_id=target_thread_id,
+                data=data)
+        self.start_time = start_time
+
 class EventLoop(object):
     def __init__(self):
         self.queue = queue.Queue()
@@ -46,13 +56,20 @@ class EventLoop(object):
 
     def main_loop(self):
         while True:
+            time.sleep(0.1)
             event = self.queue.get()
-            if event.event_id == 0 and event.name == 'shutdown':
+            if event.event_id == EventID.SHUTDOWN:
                 break
-            else:
-                for thread_id, callback in self.callbacks[event.event_id]:
-                    if event.target_thread_id == thread_id:
-                        callback(event)
+            elif event.event_id == EventID.ALARM:
+                current_time = time.time()
+                if event.start_time > current_time:
+                    #put alarm event after a normal event
+                    self.queue.put_nowait(event)
+                    continue
+
+            for thread_id, callback in self.callbacks[event.event_id]:
+                if event.target_thread_id == thread_id:
+                    callback(event)
 
     def send_event(self, event):
         self.queue.put_nowait(event)

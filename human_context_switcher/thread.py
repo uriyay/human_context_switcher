@@ -3,8 +3,9 @@ import json
 import string
 from terminaltables import AsciiTable, SingleTable
 import textwrap
+import time
 
-from .event_loop import EventID, MessageEvent
+from .event_loop import EventID, MessageEvent, AlarmEvent
 
 LINE_WIDTH = 80
 
@@ -20,15 +21,35 @@ class Thread(object):
         #main_loop
         self.event_loop = event_loop
         self.event_loop.register_callback(EventID.MESSAGE, self.id, self.recv)
+        self.event_loop.register_callback(EventID.ALARM, self.id, self.recv)
 
     def __del__(self):
         self.event_loop.unregister_callback(EventID.MESSAGE, self.id, self.recv)
 
     def recv(self, event):
-        print ('[EVENT] thread "%s" got "%s" from thread "%s"' % (self.thread_name, event.data, event.source_thread_name))
+        if event.event_id == EventID.MESSAGE:
+            print ('[Message] thread "%s" got "%s" from thread "%s"' % (
+                self.thread_name, event.data, event.source_thread_name))
+        elif event.event_id == EventID.ALARM:
+            print('[Alarm] thread "%s" got alaram "%s" from thread "%s"' % (
+                self.thread_name, event.data, event.source_thread_name))
+
+        if event.data.startswith('cmd '):
+            command = event.data.partition('cmd ')[-1].strip()
+
+            current_thread = self.console.current_thread
+            self.console.current_thread = self
+
+            self.console.parse(command)
+
+            self.console.current_thread = current_thread
 
     def send(self, target_thread_id, data):
         self.event_loop.send_event(MessageEvent(self.thread_name, self.id, target_thread_id, data))
+
+    def set_alarm(self, data, miliseconds_offset):
+        event_time = time.time() + (miliseconds_offset / 1000)
+        self.event_loop.send_event(AlarmEvent(self.thread_name, self.id, self.id, data, event_time))
 
     def dump(self):
         return json.dumps([self.id, self.thread_name, self.stack, self.memory])

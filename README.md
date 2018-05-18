@@ -114,6 +114,14 @@ wikidata:
         Gets wikidata page.
         Syntax: wikidata <title>
 
+send:
+        Sends a message to other thread
+        Syntax: send <thread_name> <data>
+
+alarm: 
+        Sets alarm in current thread
+        Syntax: alarm <miliseconds_offset> data
+
 Also you can type a text wrapped by "`" in order to run to run it with python.
 for example: "push `1+1`" will push 2).
 In a similar way you can wrap a text by "$" in order to run it with the command line.
