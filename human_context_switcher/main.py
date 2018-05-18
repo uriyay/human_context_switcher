@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import asyncio
 import time
+import threading
 
 from . import console
 from . import config
@@ -8,31 +8,22 @@ from . import event_loop
 
 class App(object):
     def __init__(self):
-        self.loop = asyncio.get_event_loop()
-        self.event_loop = event_loop.EventLoop(self.loop)
+        self.event_loop = event_loop.EventLoop()
         self.console = console.Console.load(config.Config['db_path'], event_loop=self.event_loop)
-
-    @asyncio.coroutine
-    def run_console(self):
-        self.console.run()
-        self.event_loop.shutdown()
-
-    @asyncio.coroutine
-    def close_loop(*args):
-        loop.stop()
-        loop.close()
+        self.event_loop_thread = None
 
     def main(self):
-        try:
-            #TODO: turns out that tasks can run in parallel onlyif they are running in different Threads..
-            self.loop.run_until_complete(
-                asyncio.gather(self.event_loop.main_loop(),
-                    self.run_console()))
-        finally:
-            self.console.dump()
-            self.event_loop.shutdown()
+        self.event_loop_thread = threading.Thread(target=self.event_loop.main_loop)
 
-        self.close_loop()
+        #run
+        self.event_loop_thread.start()
+        self.console.run()
+
+        #shutdown
+        self.console.dump()
+        self.event_loop.shutdown()
+        if self.event_loop_thread is not None:
+            self.event_loop_thread.join()
 
 if __name__ == '__main__':
     App().main()

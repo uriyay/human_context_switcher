@@ -74,9 +74,12 @@ class Console(object):
         '''
         #current thread sends message to thread_name thread
         thread_name, sep, data = line.partition(' ')
-        #TODO: handle not exists thread
-        target_thread = self.threads[thread_name]
-        self.current_thread.send(target_thread.id, data)
+        target_thread = self.threads.get(thread_name, None)
+        if target_thread is None:
+            print('cannot send to thread named "{0}", thread is not exists.'.format(thread_name))
+            print('run "list" to get threads list')
+        else:
+            self.current_thread.send(target_thread.id, data)
 
     def comment(self, line):
         '''
@@ -354,7 +357,7 @@ class Console(object):
             c = cls(event_loop=event_loop, is_load_mode=True)
             c.threads = {}
             for data in threads_dumps:
-                t = thread.Thread.load(data, event_loop=event_loop)
+                t = thread.Thread.load(data, console=c, event_loop=event_loop)
                 c.threads[t.thread_name] = t
             c.main_thread = next(x for x in c.threads.values() if x.id == main_thread_id)
             c.current_thread = next(x for x in c.threads.values() if x.id == current_thread_id)

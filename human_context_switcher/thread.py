@@ -9,11 +9,13 @@ from .event_loop import EventID, MessageEvent
 LINE_WIDTH = 80
 
 class Thread(object):
-    def __init__(self, event_loop=None, name=None, thread_id=None, stack=None, memory=None):
+    def __init__(self, console=None, event_loop=None, name=None, thread_id=None, stack=None, memory=None):
         self.id = id(self) if thread_id is None else thread_id
         self.thread_name = namesgenerator.get_random_name() if name is None else name
         self.stack = [] if stack is None else stack
         self.memory = {} if memory is None else memory
+    
+        self.console = console
 
         #main_loop
         self.event_loop = event_loop
@@ -23,18 +25,18 @@ class Thread(object):
         self.event_loop.unregister_callback(EventID.MESSAGE, self.id, self.recv)
 
     def recv(self, event):
-        print('{0} got event {1}'.format(self.thread_name, str(event)))
+        print ('[EVENT] thread "%s" got "%s" from thread "%s"' % (self.thread_name, event.data, event.source_thread_name))
 
     def send(self, target_thread_id, data):
-        self.event_loop.send_event(MessageEvent(self.id, target_thread_id, data))
+        self.event_loop.send_event(MessageEvent(self.thread_name, self.id, target_thread_id, data))
 
     def dump(self):
         return json.dumps([self.id, self.thread_name, self.stack, self.memory])
 
     @classmethod
-    def load(cls, data, event_loop=None):
+    def load(cls, data, console=None, event_loop=None):
         thread_id, thread_name, stack, memory = json.loads(data)
-        t = cls(event_loop=event_loop, name=thread_name, thread_id=thread_id, stack=stack, memory=memory)
+        t = cls(console=console, event_loop=event_loop, name=thread_name, thread_id=thread_id, stack=stack, memory=memory)
         return t
 
     def push(self, data):

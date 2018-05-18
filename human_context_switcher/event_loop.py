@@ -1,12 +1,19 @@
-import asyncio
 import time
 import collections
+import queue
 
 class Event(object):
-    def __init__(self, event_id, name, source_thread_id=None, target_thread_id=None, data=None):
+    def __init__(self,
+            event_id,
+            name,
+            source_thread_name=None,
+            source_thread_id=None,
+            target_thread_id=None,
+            data=None):
         self.event_id = event_id
         self.name = name
         self.data = data
+        self.source_thread_name = source_thread_name
         self.source_thread_id = source_thread_id
         self.target_thread_id = target_thread_id
         self.time = time.time()
@@ -25,22 +32,21 @@ class ShutdownEvent(Event):
         super(ShutdownEvent, self).__init__(EventID.SHUTDOWN, 'shutdown')
 
 class MessageEvent(Event):
-    def __init__(self, source_thread_id, target_thread_id, data):
+    def __init__(self, source_thread_name, source_thread_id, target_thread_id, data):
         super(MessageEvent, self).__init__(EventID.MESSAGE, 'message',
+                source_thread_name=source_thread_name,
                 source_thread_id=source_thread_id,
                 target_thread_id=target_thread_id,
                 data=data)
 
 class EventLoop(object):
-    def __init__(self, loop):
-        self.loop = loop
-        self.queue = asyncio.Queue(loop=self.loop)
+    def __init__(self):
+        self.queue = queue.Queue()
         self.callbacks = collections.defaultdict(list)
 
-    @asyncio.coroutine
     def main_loop(self):
         while True:
-            event = yield from self.queue.get()
+            event = self.queue.get()
             if event.event_id == 0 and event.name == 'shutdown':
                 break
             else:
@@ -50,7 +56,6 @@ class EventLoop(object):
 
     def send_event(self, event):
         self.queue.put_nowait(event)
-        print('qsize = ' + str(self.queue.qsize()))
 
     def shutdown(self):
         self.queue.put_nowait(ShutdownEvent())
