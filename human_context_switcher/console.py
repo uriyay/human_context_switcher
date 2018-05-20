@@ -34,6 +34,7 @@ class Console(object):
         self.event_loop = event_loop
         self.commands = {
             'help' : self.help,
+            'echo' : self.echo,
             'new' : self.new_thread,
             'switch' : self.switch,
             'delete' : self.delete_command,
@@ -68,6 +69,13 @@ class Console(object):
                 'for example: "push `1+1`" will push 2).',
                 'In a similar way you can wrap a text by "$" in order to run it with the command line.']))
 
+    def echo(self, line):
+        '''
+        Echo command. Will print the input line.
+        Useful if you want to run python/shell commands and just see the output
+        '''
+        print(line)
+
     def alarm(self, line):
         '''
         Sets alarm in current thread
@@ -81,6 +89,7 @@ class Console(object):
         '''
         Sends a message to other thread
         Syntax: send <thread_name> <data>
+        In data you can pass "cmd <cmd>" to execute a console command in the target thread_name context
         '''
         #current thread sends message to thread_name thread
         thread_name, sep, data = line.partition(' ')

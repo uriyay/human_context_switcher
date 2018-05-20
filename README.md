@@ -117,6 +117,7 @@ wikidata:
 send:
         Sends a message to other thread
         Syntax: send <thread_name> <data>
+        In data you can pass "cmd <cmd>" to execute a console command in the target thread_name context
 
 alarm: 
         Sets alarm in current thread
