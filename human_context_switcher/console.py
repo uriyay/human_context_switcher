@@ -27,7 +27,7 @@ readline.parse_and_bind('tab: complete')
 class Console(object):
     def __init__(self, event_loop=None, is_load_mode=False):
         if not is_load_mode:
-            self.main_thread = thread.Thread(name='main')
+            self.main_thread = thread.Thread(name='main', event_loop=event_loop)
             self.threads = {'main' : self.main_thread}
             self.current_thread = self.main_thread
         self.should_stop = False
@@ -381,4 +381,4 @@ class Console(object):
             c.main_thread = next(x for x in c.threads.values() if x.id == main_thread_id)
             c.current_thread = next(x for x in c.threads.values() if x.id == current_thread_id)
             return c
-        return cls()
+        return cls(event_loop=event_loop)
